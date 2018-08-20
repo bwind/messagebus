@@ -20,7 +20,7 @@ logging.disable(sys.maxsize)
 
 with description('MessageBus') as self:
     with before.each:
-        self.bus = MessageBus(queue_prefix='testing')
+        self.bus = MessageBus('amqp://rabbit:5672', queue_prefix='testing')
 
     with it('can publish and subscribe to a message'):
         received_event = Event()
@@ -97,7 +97,7 @@ with description('MessageBus') as self:
         self._subscribe_in_the_background(message_type, echoing_callback,
                                           responds=True)
 
-        bus = MessageBus(queue_prefix='testing2')
+        bus = MessageBus('amqp://rabbit:5672', queue_prefix='testing2')
         received = bus.publish_and_get_response(message_type,
                                                 {'proof': instance})
 
@@ -114,7 +114,8 @@ with description('MessageBus') as self:
 
         def start_bus():
             while True:
-                bus = MessageBus(queue_prefix=queue_prefix)
+                bus = MessageBus('amqp://rabbit:5672',
+                                 queue_prefix=queue_prefix)
                 bus.consumer.on_connection_setup_finished = \
                     lambda: started.set()
                 if responds:
